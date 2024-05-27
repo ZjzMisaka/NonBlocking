@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 //
-// Includes all the tests for System.Collection.Concurrent.NonBlocking.ConcurrentDictionary in 
-// https://github.com/dotnet/corefx to ensure compatibility.
+// Includes tests for System.Collection.Concurrent.ConcurrentDictionary in 
+// https://github.com/dotnet/runtime to ensure compatibility.
 //
 
 using System;
@@ -631,7 +631,29 @@ namespace NonBlockingTests
             Assert.Equal(1, dictionary.Values.Count);
         }
 
-        //[Fact]
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(1)]
+        [InlineData(10)]
+        public static void TestConstructor_ConcurrencyLevel(int concurrencyLevel)
+        {
+            var dictionary = new NonBlocking.ConcurrentDictionary<int, int>(concurrencyLevel, 0);
+            Assert.Equal(0, dictionary.Count);
+            Assert.True(dictionary.TryAdd(1, 2));
+            Assert.Equal(1, dictionary.Count);
+
+            dictionary = new NonBlocking.ConcurrentDictionary<int, int>(concurrencyLevel, 10, EqualityComparer<int>.Default);
+            Assert.Equal(0, dictionary.Count);
+            Assert.True(dictionary.TryAdd(3, 4));
+            Assert.Equal(1, dictionary.Count);
+
+            dictionary = new NonBlocking.ConcurrentDictionary<int, int>(concurrencyLevel, new[] { new KeyValuePair<int, int>(1, 1) }, null);
+            Assert.Equal(1, dictionary.Count);
+            Assert.True(dictionary.TryAdd(5, 6));
+            Assert.Equal(2, dictionary.Count);
+        }
+
+        //[ConditionalFact(typeof(PlatformDetection), nameof(PlatformDetection.IsDebuggerTypeProxyAttributeSupported))]
         //public static void TestDebuggerAttributes()
         //{
         //    DebuggerAttributes.ValidateDebuggerDisplayReferences(new NonBlocking.ConcurrentDictionary<string, int>());
@@ -751,7 +773,7 @@ namespace NonBlockingTests
             // "TestConstructor:  FAILED.  Constructor didn't throw AORE when <1 concurrencyLevel passed");
 
             Assert.Throws<ArgumentOutOfRangeException>(
-               () => new NonBlocking.ConcurrentDictionary<int, int>(-1, 0));
+               () => new NonBlocking.ConcurrentDictionary<int, int>(-2, 0));
             // "TestConstructor:  FAILED.  Constructor didn't throw AORE when < 0 capacity passed");
         }
 
