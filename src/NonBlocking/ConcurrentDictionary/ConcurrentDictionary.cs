@@ -449,7 +449,7 @@ namespace NonBlocking
             int count = snapshot.Count;
             if (count == 0)
             {
-                return Array.Empty<KeyValuePair<TKey, TValue>>();
+                return EmptyArray<KeyValuePair<TKey, TValue>>.Value;
             }
 
             var array = new KeyValuePair<TKey, TValue>[count];
